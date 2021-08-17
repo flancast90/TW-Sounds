@@ -1,6 +1,7 @@
 # TW-Sounds
 A JS investigation of letter/word sounds and Audio Analysis for use in the Speech-to-Text-in-TW5
 
+<br />
 
 ### Install
 Include this library in your browser through the HTML ``<script>`` tags.
@@ -8,6 +9,7 @@ Include this library in your browser through the HTML ``<script>`` tags.
 <script src="https://flancast90.github.io/TW-Sounds/src/tw-sounds.js"></script>
 ```
 
+<br />
 
 ### Usage
 Make a function call, as shown below.
@@ -30,6 +32,7 @@ You will get the output of the following array:
 [afterstorm, brainstorm, outstorm, rainstorm, snowstorm, storm, thunderstorm]
 ```
 
+<br />
 
 # License 
 ```
