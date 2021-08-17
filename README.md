@@ -9,6 +9,12 @@ Include this library in your browser through the HTML ``<script>`` tags.
 <script src="https://flancast90.github.io/TW-Sounds/src/tw-sounds.js"></script>
 ```
 
+OR:
+Host the repo yourself (file path _must_ stay intact), and include similarly to below.
+```html
+<script src="path/to/src/tw-sounds.js"></script>
+```
+
 <br />
 
 ### Usage
