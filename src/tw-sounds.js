@@ -1,88 +1,98 @@
 /*
-TW-Sounds: A Sound Analysis Library for TW5 plugin
-
-Copyright 2021 Finn Lancaster, TiddlyWiki Community
-
-Under MIT License
+ * TW Sounds: An Experimental Approach to Determining Rhymes
+ *
+ * Copyright Finn Lancaster 2021, TW Community 
+ *
+ * MIT License
 */
 
+// global variable declaration
 
-// WARNING: A had a mental fucking breakdown writing this code.
+var syllables_split = [];
+var dictionary_list = [];
+var rhymes = [];
 
-// global variable declarations
-// array we will populate with key, keypair
-var key_keypair = [];
-var CMU_dictionary = [];
-var user_ipa = ""
+async function get_dictionary() {
+// now a very fucking long dictionary of words
+	const url = "https://flancast90.github.io/TW-Sounds/lib/words_alpha.txt"
 
-// CMU Dictionary of 133000 words to IPA format
-const url = "https://flancast90.github.io/TW-Sounds/lib/CMU.in.IPA.txt"
-fetch(url)
-   .then( r => r.text() )
-   // regex below will remove tab spaces from txt file.
-   // it took my dumb ass three fucking days to find that HT = tab.
-   .then( t => extract_ipa(t.replace(/\t/g, "")));
+    const response = await fetch(url)
+        .then( r => r.text() )
+        // regex below will remove tab spaces from txt file.
+        // it took my dumb ass three fucking days to find that HT = tab.
+        .then( t => dictionary_to_syllables(t.replace(/\t/g, "")));
 
-// this function organises the output of the CMU IPA
-// Dict to arrays. 
-function extract_ipa(ipa_input) {
-    // local function vars
-	var clean_text = (ipa_input.replaceAll("\n","<br>"));
-    var clean_array = clean_text.split("<br>");
-    
-    for (let i = 0; i < clean_array.length-1; i++) {
-     
-     key_keypair.push(clean_array[i].split(",")[0].replaceAll(" ", ""));
-	 key_keypair.push(clean_array[i].replaceAll(" ", "").split(",")[1]);
-     
-    }
+    return response;
 }
 
+//break the dictionary words into syllables
 
-// this function finds similar-sounding words based
-// on the user's word input
-function find_similar(pronunciation) {
-	var word = pronunciation.split("");
-    document.write(word);
-    var index = key_keypair.indexOf("aalseth");
-    alert(key_keypair[index+1]);
+function dictionary_to_syllables(dict) {
+
+// local function vars
+	var clean_text = (dict.replaceAll("\n","<br>"));
+    dictionary_list = clean_text.split("<br>");
 }
 
-function handle_user_input(user_input) {
-
-// words are always at an even index, with their definitions 
-// at odd, so we can add two and half the eval time.
-	for (let i = 0; i < key_keypair.length - 1; i++) {
+async function into_syllables(user_input) {
 	
-    	if (key_keypair[i] == user_input.toLowerCase()) {
-        	// first, make sure the word is the word, and not 
-            // the definition.
-            
-            if ((i % 2) == 0) {
-        		// next index in array will always be the ipa of the 
-        		// word before.
-        		user_ipa = key_keypair[i + 1];
-                console.log(user_ipa);
-                find_similar(user_ipa);
-                break;
-            } else {
-            	// God fucking save us
-                // Yes, I've been reading the funniest code comments
-                // on StackOverflow.
-                
-                // No Joke. This below line is fucking voodoo.
-                // Try removing it and the program doesn't run.
-                // no, seriously, try it karen.
-                console.error("Something went wrong");
-            }
-            
+    await get_dictionary();
+	// use regex to split word into syllables
+    // https://stackoverflow.com/questions/49403285/splitting-word-into-syllables-in-javascript/49407494
+
+	const vowels = /[^aeiouy]*[aeiouy]+(?:[^aeiouy]*$|[^aeiouy](?=[^aeiouy]))?/gi;
+    
+    for (var i = 0; i < dictionary_list.length; i ++) {
+    // updating variable to change all values to array
+    var single_syllable_word = [];
+    	if (Array.isArray(dictionary_list[i].match(vowels))) {
+    		dictionary_list[i] = dictionary_list[i].match(vowels);
         } else {
-        	// loop keeps going
+        	single_syllable_word.push(dictionary_list[i].match(vowels));
+            dictionary_list[i] = single_syllable_word;
         }
     }
     
+    // no need for good practises or return, we'll just update
+    // global var.
+    syllables_split = (user_input.match(vowels));
 }
 
-setTimeout(function() {
-	handle_user_input("aalseth");
-}, 5000);
+// voodoo magick below this line
+
+async function find_potential_rhymes(user_input) {
+// split into syllables first
+	await into_syllables(user_input);
+    
+    //local function variable
+    
+    //use custom algorithm to determine probability of
+    //rhyme.
+    
+    /*
+     * Using word syllables, check last syllable similarity 
+     * between two words. If they are the same, it is nearly a 100% rhyme
+     * as the similar letters approach all of the same, confidence also increases,
+     * if not similar at all, it is closer to 0%
+    */
+    
+    for (var i = 0; i < dictionary_list.length; i++){
+    	// this is the var we will store an array of letters for 
+        // each word in the dictionary for. We can then determine
+        // the percent difference to the user input to decide whether
+        // it is a probable rhyme or not.
+    	// the above functionality will be added in a later release
+        
+    	if (dictionary_list[i][dictionary_list[i].length-1] == syllables_split[syllables_split.length-1]) {
+        	var new_rhyme = dictionary_list[i].join("");
+            
+            // replace duplicate values
+            if (new_rhyme !== user_input) {
+            	rhymes.push(new_rhyme);
+            }
+        }
+    }
+    //output all the rhymes we found
+    
+    return rhymes;
+}
